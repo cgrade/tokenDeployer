@@ -9,37 +9,54 @@ import { IERC20 } from "../lib/openzeppelin-contracts/contracts/token/ERC20/IERC
 /// @notice This contract allows the creator of an ERC20 token to send airdrops to multiple recipients.
 /// @dev The contract maintains a mapping of token creators to their respective token addresses.
 contract AirdropContract {
-    // Custom errors for better gas efficiency
+    /*//////////////////////////////////////////////////////////////
+                                 ERRORS
+    //////////////////////////////////////////////////////////////*/
     error AirdropContract__TransferFailed(address recipient, uint256 amount);
     error AirdropContract__NotTokenCreator();
+    error AirdropContract__TokenCreatorAlreadySet();
 
+    /*//////////////////////////////////////////////////////////////
+                            STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
     // Mapping to store the token creator for each token address
     mapping(address => address) public tokenCreators;
 
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
+    /// @dev Modifier to restrict access to the token creator.
+    modifier onlyTokenCreator(address token) {
+        if (msg.sender != tokenCreators[token]) revert AirdropContract__NotTokenCreator();
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
     // Event emitted when a token creator is set
     event TokenCreatorSet(address indexed token, address indexed creator);
-
     // Event emitted when an airdrop is sent
     event AirdropSent(address indexed token, address indexed sender, address[] recipients, uint256 amount);
 
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR FUNCTION
+    //////////////////////////////////////////////////////////////*/
     /// @notice Constructor for the AirdropContract.
     constructor() { }
 
+    /*//////////////////////////////////////////////////////////////
+                           EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
     /// @notice Sets the token creator for a specific token.
     /// @param token The address of the ERC20 token.
     /// @dev Can only be called by the token creator once per token.
     function setTokenCreator(address token) external {
         // Ensure that the token creator can only set their own token
-        require(tokenCreators[token] == address(0), "Token creator already set");
+        if (tokenCreators[token] != address(0)) revert AirdropContract__TokenCreatorAlreadySet();
         tokenCreators[token] = msg.sender;
 
         emit TokenCreatorSet(token, msg.sender); // Emit event for setting token creator
-    }
-
-    /// @dev Modifier to restrict access to the token creator.
-    modifier onlyTokenCreator(address token) {
-        if (msg.sender != tokenCreators[token]) revert AirdropContract__NotTokenCreator();
-        _;
     }
 
     /// @notice Sends an airdrop of tokens to multiple recipients.
@@ -47,10 +64,17 @@ contract AirdropContract {
     /// @param _recipients An array of addresses to receive the airdrop.
     /// @param _amount The amount of tokens each recipient will receive.
     /// @dev Can only be called by the token creator of the specified token.
-    function sendAirdrop(address token, address[] memory _recipients, uint256 _amount) public onlyTokenCreator(token) {
+    function sendAirdrop(address token, address[] memory _recipients, uint256 _amount)
+        external
+        onlyTokenCreator(token)
+    {
         _batchTransfer(token, _recipients, _amount);
         emit AirdropSent(token, msg.sender, _recipients, _amount); // Emit event for airdrop
     }
+
+    /*//////////////////////////////////////////////////////////////
+                           INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Internal function to batch transfer tokens to multiple recipients.
     /// @param token The address of the ERC20 token to be transferred.
