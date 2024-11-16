@@ -1,7 +1,5 @@
-import TokenDeployer from "../../components/TokenDeployer";
+import TokenDeployer from "@/components/TokenDeployer";
 
-const Landing = () => {
-  return <TokenDeployer />;
-};
-
-export default TokenDeployer;
+export default function Airdrop() {
+  return <TokenDeployer initialSection="airdrop" />;
+}

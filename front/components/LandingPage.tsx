@@ -1,8 +1,7 @@
-import Button from "./ui/Button";
+import { Button } from "./ui/Button";
 import { Card, CardContent } from "./ui/card";
 import Link from "next/link";
 import Image from "next/image";
-// import NavBar from "./ui/NavBar";
 import {
   MessageCircle,
   Coins,
@@ -17,24 +16,19 @@ import {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#000510] via-[#002030] to-[#001525] text-white">
-      {/* Navigation */}
-      {/* <NavBar /> */}
       {/* Hero Section */}
       <div className="container mx-auto px-4 pt-10 lg:pt-50">
         <div className="grid lg:grid-cols-2 gap-12 lg:items-center">
           <div className="space-y-8">
-            {/* // Landing Page Hero Text */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
               <span className="text-[#0095FF]">Create </span> Tokens easily
             </h1>
-            {/* Short Description */}
             <p className="text-gray-400 text-lg md:text-xl max-w-lg">
               Create and manage tokens, automate payments and track your token
               portfolio effortlessly
             </p>
-            {/* // Button */}
             <Button className="bg-blue-500 text-white px-8 py-2 rounded transition-all duration-300 hover:bg-blue-600">
-              <Link href={"airdrop"}>Launch App</Link>
+              <Link href="/create">Launch App</Link>
             </Button>
           </div>
 
@@ -45,7 +39,7 @@ export default function LandingPage() {
                 alt="ERC20 Tokens"
                 width={500}
                 height={500}
-                className="w-auto   h-auto"
+                className="w-auto h-auto"
               />
             </div>
           </div>
