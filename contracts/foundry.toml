@@ -18,4 +18,12 @@ sepolia = { key = "${ETHERSCAN_API_KEY}" }
 line_length = 120
 tab_width = 4
 bracket_spacing = true
+remappings = [
+    "@openzeppelin/contracts/=/Users/grade/Desktop/TokenDeployer/contracts/lib/openzeppelin-contracts/contracts/",
+    "ds-test/=/Users/grade/Desktop/TokenDeployer/contracts/lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/",
+    "erc4626-tests/=/Users/grade/Desktop/TokenDeployer/contracts/lib/openzeppelin-contracts/lib/erc4626-tests/",
+    "forge-std/=/Users/grade/Desktop/TokenDeployer/contracts/lib/forge-std/src/",
+    "halmos-cheatcodes/=/Users/grade/Desktop/TokenDeployer/contracts/lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+    "openzeppelin-contracts/=/Users/grade/Desktop/TokenDeployer/contracts/lib/openzeppelin-contracts/"
+]
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
