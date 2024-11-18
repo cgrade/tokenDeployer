@@ -21,11 +21,11 @@ export default function LandingPage() {
         <div className="grid lg:grid-cols-2 gap-12 lg:items-center">
           <div className="space-y-8">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-              <span className="text-[#0095FF]">Create </span> Tokens easily
+              Create <span className="text-[#0095FF]">Tokens</span> easily
             </h1>
             <p className="text-gray-400 text-lg md:text-xl max-w-lg">
-              Create and manage tokens, automate payments and track your token
-              portfolio effortlessly
+              A No Code Approach to Create, manage and airdrop tokens
+              effortlessly for your project.
             </p>
             <Button className="bg-blue-500 text-white px-8 py-2 rounded transition-all duration-300 hover:bg-blue-600">
               <Link href="/create">Launch App</Link>
@@ -226,14 +226,6 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-center mt-12 pt-8 border-t border-white/10">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <span className="text-[#0095FF] font-bold text-xl">
-                Token Tool
-              </span>
-              <span className="text-gray-400">
-                © 2024 Bitbond. All rights reserved.
-              </span>
-            </div>
             <div className="flex items-center gap-4">
               <Link href="#" className="text-gray-400 hover:text-white">
                 <Github className="h-6 w-6" />
