@@ -9,7 +9,6 @@ import { BaseERC20 } from "./BaseERC20.sol";
 /// @author Abraham Elijah (Mr. Grade)
 /// @notice A factory contract for creating ERC20 tokens with various features.
 contract TokenFactory is Ownable {
-    
     /// @dev Struct to hold information about created tokens.
     struct TokenInfo {
         address tokenAddress; // Address of the created token
