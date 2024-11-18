@@ -111,4 +111,3 @@ contract TokenFactoryTest is Test {
         factory.getTokenInfo(owner, 1); // Attempt to access an out-of-bounds index
     }
 }
-
