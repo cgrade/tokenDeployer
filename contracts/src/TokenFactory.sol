@@ -2,13 +2,22 @@
 
 pragma solidity ^0.8.19;
 
-import { Ownable } from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
+import { Ownable } from "@openzeppelin/access/Ownable.sol";
 import { BaseERC20 } from "./BaseERC20.sol";
 
 /// @title TokenFactory
 /// @author Abraham Elijah (Mr. Grade)
 /// @notice A factory contract for creating ERC20 tokens with various features.
 contract TokenFactory is Ownable {
+    /*//////////////////////////////////////////////////////////////
+                                 ERRORS
+    //////////////////////////////////////////////////////////////*/
+    error TokenFactory__TokenIndexOutOfBound(uint256);
+
+    /*//////////////////////////////////////////////////////////////
+                            STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
+
     /// @dev Struct to hold information about created tokens.
     struct TokenInfo {
         address tokenAddress; // Address of the created token
@@ -19,11 +28,15 @@ contract TokenFactory is Ownable {
         bool isBurnable; // Indicates if the token is burnable
         bool isWhitelistingEnabled; // Indicates if whitelisting is enabled
         bool isTransferFeeEnabled; // Indicates if transfer fees are enabled
+        address deployer; // Indicates the address that deployed the token.
     }
 
     // Maps user address to their tokens
     mapping(address => TokenInfo[]) public userTokens;
 
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
     // Event emitted when a new token is created
     event TokenCreated(
         address indexed creator,
@@ -39,8 +52,16 @@ contract TokenFactory is Ownable {
         bool isTransferFeeEnabled
     );
 
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
+
     /// @notice Constructor to initialize the TokenFactory.
     constructor() Ownable(msg.sender) { }
+
+    /*//////////////////////////////////////////////////////////////
+                           EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Creates a new ERC20 token with specified parameters.
     /// @param name The name of the token.
@@ -51,6 +72,7 @@ contract TokenFactory is Ownable {
     /// @param _isBurnable Flag indicating if burning is enabled.
     /// @param _isWhitelistingEnabled Flag indicating if whitelisting is enabled.
     /// @param _isTransferFeeEnabled Flag indicating if transfer fees are enabled.
+    /// @param _account This is the Account that deployed the ERC20 Token.
     /// @return The address of the newly created token.
     function createERC20(
         string memory name,
@@ -60,7 +82,8 @@ contract TokenFactory is Ownable {
         bool _isMintable,
         bool _isBurnable,
         bool _isWhitelistingEnabled,
-        bool _isTransferFeeEnabled
+        bool _isTransferFeeEnabled,
+        address _account
     ) public returns (address) {
         // Create a new BaseERC20 token
         BaseERC20 token = new BaseERC20(
@@ -71,7 +94,8 @@ contract TokenFactory is Ownable {
             _isMintable,
             _isBurnable,
             _isWhitelistingEnabled,
-            _isTransferFeeEnabled
+            _isTransferFeeEnabled,
+            _account
         );
 
         // Create a TokenInfo struct to store token details
@@ -83,10 +107,12 @@ contract TokenFactory is Ownable {
             isMintable: _isMintable,
             isBurnable: _isBurnable,
             isWhitelistingEnabled: _isWhitelistingEnabled,
-            isTransferFeeEnabled: _isTransferFeeEnabled
+            isTransferFeeEnabled: _isTransferFeeEnabled,
+            deployer: _account
         });
 
         // Store the token information for the creator
+
         userTokens[msg.sender].push(tokenInfo);
 
         // Emit an event for the token creation
@@ -120,7 +146,7 @@ contract TokenFactory is Ownable {
     /// @return The TokenInfo struct containing the token's details.
     /// @dev Reverts if the index is out of bounds.
     function getTokenInfo(address user, uint256 index) public view returns (TokenInfo memory) {
-        require(index < userTokens[user].length, "Token index out of bounds");
+        if (index >= userTokens[user].length) revert TokenFactory__TokenIndexOutOfBound(index);
         return userTokens[user][index];
     }
 }

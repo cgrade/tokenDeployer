@@ -1,0 +1,41 @@
+Where to Fix in the Onchain Interactions.
+
+1.  Connect Wallet button.  
+    where to effect this - app/layout.tsx: Line 122.
+    i. Use OnchainKit connect wallet to allow users connect their wallet.
+
+2.  Get User Inputs when Creating Token
+    Where to Effect this? - components/TokenDeployer.tsx: Line 46
+    i. collect User Inputs:
+    string memory name,
+    string memory symbol,
+    uint256 initialSupply,
+    uint8 decimalsValue,
+    bool \_isMintable,
+    bool \_isBurnable,
+    bool \_isWhitelistingEnabled,
+    bool \_isTransferFeeEnabled
+
+        ii. Pass it as Args to the createERC20() function of the TokenFactory Contract
+        iii. Listen for event emmited/error
+        iv. Relay response to the client.
+        v. handle the Deploy Token Button to make the function call (this alert the wallet to sign the transaction.)
+
+3.  Handle Manage Tokens.
+
+    Where to Effect This? - components/TokenDeployer.tsx: Line 149
+    i. querry the userTokens mapping by passing in the user Address as arguments
+    ii. It returns a List of all the tokens created by that user.
+    iii. Create a list of objects that holds the token info
+    iv. render the tokens in the table
+
+4.  Handle Airdrop Page
+    Where to Effect this? - components/TokenDeployer.tsx: Line 267
+    i. querry the userTokens mapping by passing in the user Address as arguments
+    ii. It returns a List of all the tokens created by that user.
+    iii. Create a list of objects that holds the token info for the user
+    iv. render the tokens in the select list in Line
+
+5.  Handle the Manage Token Page
+    where to Effect this? - app/tokens/layout.tsx: Line 20
+    i. querr

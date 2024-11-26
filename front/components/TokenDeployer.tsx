@@ -151,7 +151,7 @@ export default function TokenDeployer({ initialSection = "createToken" }) {
       {
         id: 1,
         name: "Galaxy Token",
-        ticker: "GLX",
+        ticker: "GL",
         address: "0x1234...5678",
         dateCreated: "2024-01-15",
         isMintable: true,
@@ -195,8 +195,11 @@ export default function TokenDeployer({ initialSection = "createToken" }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {/* // Maps the List of tokens to render them in the Table. */}
                 {mockTokens.map((token) => (
+                  // Table Row starts Here
                   <TableRow key={token.id} className="border-gray-800">
+                    {/* // Table Cell for Name */}
                     <TableCell>
                       <Link
                         href={`/tokens/${token.id}`}
@@ -205,15 +208,19 @@ export default function TokenDeployer({ initialSection = "createToken" }) {
                         {token.name}
                       </Link>
                     </TableCell>
+                    {/* // Table Cell for Ticker */}
                     <TableCell className="text-gray-300">
                       {token.ticker}
                     </TableCell>
+                    {/* // Table Cell for Contract Address */}
                     <TableCell className="font-mono text-gray-300">
                       {token.address}
                     </TableCell>
+                    {/* // Table Cell for Date Created */}
                     <TableCell className="text-gray-300">
                       {new Date(token.dateCreated).toLocaleDateString()}
                     </TableCell>
+                    {/* // Table Cell for Actions */}
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -296,6 +303,7 @@ export default function TokenDeployer({ initialSection = "createToken" }) {
                 <SelectValue placeholder="Select a token to airdrop" />
               </SelectTrigger>
               <SelectContent className="bg-gray-900 border-gray-800">
+                // Render The Queried List
                 {mockTokens.map((token) => (
                   <SelectItem
                     key={token.id}
@@ -330,11 +338,12 @@ export default function TokenDeployer({ initialSection = "createToken" }) {
   };
 
   return (
+    // This Toggles Between the page to Render.
     <motion.div
       key={activeSection}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
     >
       {activeSection === "createToken" && renderCreateToken()}
       {activeSection === "manageTokens" && renderManageTokens()}

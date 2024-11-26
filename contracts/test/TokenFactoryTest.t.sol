@@ -3,7 +3,7 @@
 pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
-import "../src/TokenFactory.sol";
+import {TokenFactory} from "../src/TokenFactory.sol";
 import "../src/BaseERC20.sol";
 
 /// @title TokenFactoryTest
@@ -16,7 +16,7 @@ contract TokenFactoryTest is Test {
     /// @notice Sets up the test environment.
     /// @dev Initializes the owner and user addresses and deploys a new TokenFactory.
     function setUp() public {
-        owner = address(this);
+        owner = address(0x22);
         user = address(0x123);
         factory = new TokenFactory();
     }
@@ -33,8 +33,10 @@ contract TokenFactoryTest is Test {
         bool isBurnable = true;
         bool isWhitelistingEnabled = true;
         bool isTransferFeeEnabled = true;
+        address deployer = owner;
 
         // Act
+        vm.prank(owner);
         address tokenAddress = factory.createERC20(
             name,
             symbol,
@@ -43,7 +45,8 @@ contract TokenFactoryTest is Test {
             isMintable,
             isBurnable,
             isWhitelistingEnabled,
-            isTransferFeeEnabled
+            isTransferFeeEnabled,
+            deployer
         );
 
         // Assert
@@ -66,11 +69,15 @@ contract TokenFactoryTest is Test {
         string memory symbol = "TTK1";
         uint256 initialSupply = 1000e18;
         uint8 decimalsValue = 18;
-        factory.createERC20(name, symbol, initialSupply, decimalsValue, true, true, true, true);
+        vm.prank(owner);
+
+        factory.createERC20(name, symbol, initialSupply, decimalsValue, true, true, true, true, owner);
 
         string memory name2 = "TestToken2";
         string memory symbol2 = "TTK2";
-        factory.createERC20(name2, symbol2, initialSupply, decimalsValue, false, false, false, false);
+        vm.prank(owner);
+
+        factory.createERC20(name2, symbol2, initialSupply, decimalsValue, false, false, false, false, owner);
 
         // Act
         TokenFactory.TokenInfo[] memory tokens = factory.getUserTokens(owner);
@@ -89,9 +96,11 @@ contract TokenFactoryTest is Test {
         string memory symbol = "TTK";
         uint256 initialSupply = 1000e18;
         uint8 decimalsValue = 18;
-        factory.createERC20(name, symbol, initialSupply, decimalsValue, true, true, true, true);
+        vm.prank(owner);
+        factory.createERC20(name, symbol, initialSupply, decimalsValue, true, true, true, true, owner);
 
         // Act
+
         TokenFactory.TokenInfo memory tokenInfo = factory.getTokenInfo(owner, 0);
 
         // Assert
@@ -104,10 +113,11 @@ contract TokenFactoryTest is Test {
     /// @dev Verifies that the correct error is thrown when accessing an invalid index.
     function testGetTokenInfoOutOfBounds() public {
         // Arrange
-        factory.createERC20("TestToken", "TTK", 1000e18, 18, true, true, true, true);
+        vm.prank(owner);
+        factory.createERC20("TestToken", "TTK", 1000e18, 18, true, true, true, true, owner);
 
         // Act & Assert
-        vm.expectRevert("Token index out of bounds");
+        vm.expectRevert(abi.encodeWithSelector(TokenFactory.TokenFactory__TokenIndexOutOfBound.selector, 1));
         factory.getTokenInfo(owner, 1); // Attempt to access an out-of-bounds index
     }
 }

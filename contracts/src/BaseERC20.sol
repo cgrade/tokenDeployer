@@ -2,38 +2,50 @@
 
 pragma solidity ^0.8.20;
 
-import { ERC20 } from "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import { Ownable } from "lib/openzeppelin-contracts/contracts/access/Ownable.sol";
-import { Pausable } from "lib/openzeppelin-contracts/contracts/utils/Pausable.sol";
+import { ERC20 } from "@openzeppelin/token/ERC20/ERC20.sol";
+import { IERC20 } from "@openzeppelin/token/ERC20/IERC20.sol";
+import { Ownable } from "@openzeppelin/access/Ownable.sol";
+import { Pausable } from "@openzeppelin/utils/Pausable.sol";
 
 /// @title BaseERC20
 /// @author Abraham Elijah (Mr. Grade)
 /// @notice  A modular ERC20 token implementation with minting, burning, whitelisting, and transfer fee features.
 contract BaseERC20 is ERC20, Ownable {
-    // Constants for gas optimization
-    uint256 private constant BASIS_POINTS = 10000; // Basis points for fee calculations
+    /*//////////////////////////////////////////////////////////////
+                                 CUSTOM ERROR
+    //////////////////////////////////////////////////////////////*/
+    error MintingDisabled();
+    error WhitelistingDisabled();
+    error InvalidTransferFee();
+    error AddressNotWhitelisted();
+    error BurningDisabled();
 
-    // State variables
+    /*//////////////////////////////////////////////////////////////
+                            STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
     bool public isMintable;
     bool public isBurnable;
     bool public isWhitelistingEnabled; // Flag for whitelisting
     bool public isTransferFeeEnabled; // Flag for transfer fee
     uint8 private _decimals;
+    address private deployer;
 
-    // Whitelist and transfer fee variables
+    // Constants for gas optimization
+    uint256 private constant BASIS_POINTS = 10000; // Basis points for fee calculations
+    uint256 private constant TRANSFER_FEE = 100; // 100 = 1%
+
+    // Whitelist
     mapping(address => bool) public isWhitelisted;
-    uint256 public transferFee; // Fee in basis points (e.g., 100 = 1%)
 
-    // Custom errors
-    error MintingDisabled();
-    error BurningDisabled();
-    error WhitelistingDisabled();
-    error InvalidTransferFee();
-    error AddressNotWhitelisted();
-
-    // Events
+    /*//////////////////////////////////////////////////////////////
+                            EVENTS
+    //////////////////////////////////////////////////////////////*/
     event AddressWhitelisted(address indexed account);
     event AddressRemovedFromWhitelist(address indexed account);
+
+    /*//////////////////////////////////////////////////////////////
+                          CONSTRUCTOR FUNCTION
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Constructor to initialize the token with specified parameters.
     /// @param name The name of the token.
@@ -41,9 +53,9 @@ contract BaseERC20 is ERC20, Ownable {
     /// @param initialSupply The initial supply of tokens.
     /// @param decimalsValue The number of decimals for the token.
     /// @param _isMintable Flag indicating if minting is enabled.
-    /// @param _isBurnable Flag indicating if burning is enabled.
     /// @param _isWhitelistingEnabled Flag indicating if whitelisting is enabled.
     /// @param _isTransferFeeEnabled Flag indicating if transfer fees are enabled.
+    /// @param _account.
     constructor(
         string memory name,
         string memory symbol,
@@ -52,20 +64,25 @@ contract BaseERC20 is ERC20, Ownable {
         bool _isMintable,
         bool _isBurnable,
         bool _isWhitelistingEnabled,
-        bool _isTransferFeeEnabled
-    ) ERC20(name, symbol) Ownable(msg.sender) {
+        bool _isTransferFeeEnabled,
+        address _account
+    ) ERC20(name, symbol) Ownable(_account) {
         isMintable = _isMintable;
         isBurnable = _isBurnable;
         isWhitelistingEnabled = _isWhitelistingEnabled;
         isTransferFeeEnabled = _isTransferFeeEnabled;
         _decimals = decimalsValue;
+        deployer = _account;
 
         if (initialSupply > 0) {
-            _mint(msg.sender, initialSupply * (10 ** decimalsValue));
+            _mint(deployer, initialSupply * (10 ** decimalsValue));
         }
-        _transferOwnership(msg.sender);
+        _transferOwnership(deployer);
     }
 
+    /*//////////////////////////////////////////////////////////////
+                            PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
     /// @notice Returns the number of decimals used for the token.
     /// @return The number of decimals.
     function decimals() public view virtual override returns (uint8) {
@@ -86,6 +103,7 @@ contract BaseERC20 is ERC20, Ownable {
     /// @dev Can only be called if burning is enabled.
     function burn(uint256 amount) public {
         if (!isBurnable) revert BurningDisabled();
+
         _burn(msg.sender, amount);
     }
 
@@ -107,6 +125,13 @@ contract BaseERC20 is ERC20, Ownable {
         emit AddressRemovedFromWhitelist(account);
     }
 
+    function tokenTransfer(address sender, address recipient, uint256 amount) external {
+        _transfer(sender, recipient, amount);
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                           INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
     /// @notice Internal function to transfer tokens, including transfer fee logic.
     /// @param sender The address sending the tokens.
     /// @param recipient The address receiving the tokens.
@@ -115,8 +140,8 @@ contract BaseERC20 is ERC20, Ownable {
     function _transfer(address sender, address recipient, uint256 amount) internal virtual override {
         uint256 fee = 0;
 
-        if (isTransferFeeEnabled && !isWhitelisted[sender] && transferFee > 0) {
-            fee = (amount * transferFee) / BASIS_POINTS; // Calculate fee
+        if (isTransferFeeEnabled && !isWhitelisted[sender] && TRANSFER_FEE > 0) {
+            fee = (amount * TRANSFER_FEE) / BASIS_POINTS; // Calculate fee
             super._transfer(sender, address(this), fee); // Transfer fee to contract
         }
 

@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import "../src/BaseERC20.sol";
+import { Test, console } from "forge-std/Test.sol";
+import { BaseERC20 } from "../src/BaseERC20.sol";
 
 /// @title BaseERC20Test
 /// @notice This contract contains tests for the BaseERC20 token contract.
@@ -15,18 +15,21 @@ contract BaseERC20Test is Test {
     /// @notice Sets up the test environment.
     /// @dev Initializes the owner and user addresses and deploys a new BaseERC20 token.
     function setUp() public {
-        owner = address(this);
+        owner = address(0x22);
         user = address(0x123);
-        token = new BaseERC20("TestToken", "TTK", 1000e18, 18, true, true, true, true);
+        vm.prank(owner);
+        token = new BaseERC20("TestToken", "TTK", 1000e18, 18, true, true, true, false, owner);
     }
 
     /// @notice Tests the minting of tokens.
     /// @dev Verifies that the owner's balance increases after minting tokens.
     function testMint() public {
         // Arrange
-        uint256 initialBalance = token.balanceOf(owner);
+        uint256 initialBalance = (token.balanceOf(owner));
+        console.log(initialBalance);
 
         // Act
+        vm.prank(owner);
         token.mint(owner, 100e18);
 
         // Assert
@@ -37,11 +40,15 @@ contract BaseERC20Test is Test {
     /// @dev Verifies that the owner's balance decreases after burning tokens.
     function testBurn() public {
         // Arrange
+        vm.prank(owner);
         token.mint(owner, 100e18);
         uint256 initialBalance = token.balanceOf(owner);
+        console.log(initialBalance);
 
         // Act
+        vm.prank(owner);
         token.burn(50e18);
+        console.log("After Burning", token.balanceOf(owner));
 
         // Assert
         assertEq(token.balanceOf(owner), initialBalance - 50e18);
@@ -51,6 +58,7 @@ contract BaseERC20Test is Test {
     /// @dev Verifies that a user can be whitelisted and is recognized as such.
     function testWhitelistAddress() public {
         // Arrange & Act
+        vm.prank(owner);
         token.whitelistAddress(user);
 
         // Assert
@@ -61,9 +69,11 @@ contract BaseERC20Test is Test {
     /// @dev Verifies that a user can be removed from the whitelist and is no longer recognized as such.
     function testRemoveWhitelistAddress() public {
         // Arrange
+        vm.prank(owner);
         token.whitelistAddress(user);
 
         // Act
+        vm.prank(owner);
         token.removeWhitelistAddress(user);
 
         // Assert
@@ -74,11 +84,14 @@ contract BaseERC20Test is Test {
     /// @dev Verifies that a whitelisted user can receive tokens.
     function testTransferWithFee() public {
         // Arrange
+        vm.startPrank(owner);
+
         token.whitelistAddress(user); // Whitelist the user
         token.mint(owner, 1000e18); // Mint tokens to the owner
+        vm.stopPrank();
 
         // Act
-        token.transfer(user, 100e18); // Transfer tokens to the user
+        token.tokenTransfer(owner, user, 100e18); // Transfer tokens to the user
 
         // Assert
         assertEq(token.balanceOf(user), 100e18); // Check if the user's balance is correct
@@ -88,9 +101,12 @@ contract BaseERC20Test is Test {
     /// @dev Verifies that a non-whitelisted user can receive tokens.
     function testTransferWithoutFee() public {
         // Arrange
+        vm.prank(owner);
+
         token.mint(owner, 1000e18); // Mint tokens to the owner
 
         // Act
+        vm.prank(owner);
         token.transfer(user, 100e18); // Transfer tokens to the user
 
         // Assert

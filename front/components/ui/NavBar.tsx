@@ -9,7 +9,7 @@ const NavBar = () => {
       <div className="container mx-auto px-4 py-4 flex justify-between">
         <div className="flex">
           <span className="text-[#0095FF] font-bold text-xl">
-            <Link href="/landing">Token Deployer</Link>
+            <Link href="/landing">Token eployer</Link>
           </span>
         </div>
 
@@ -18,8 +18,8 @@ const NavBar = () => {
             <Button className="bg-blue-500 text-white px-8 py-2 rounded transition-all duration-300 hover:bg-blue-600">
               Connect Wallet
             </Button>
-          </Link> */}
-        </div>
+          </Link> 
+        </div>*/}
       </div>
     </nav>
   );

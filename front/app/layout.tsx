@@ -75,7 +75,7 @@ export default function RootLayout({
               <h1 className="text-xl font-bold">Menu</h1>
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={() => setIsSidebarOpen(false)}
               >
                 <X className="h-6 w-6" />
@@ -111,13 +111,15 @@ export default function RootLayout({
                   <Button
                     className="text-white md:hidden"
                     variant="ghost"
-                    size="icon"
+                    size="sm"
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     aria-label="Toggle sidebar"
                   >
                     <Menu className="h-6 w-6" />
                   </Button>
                 </div>
+
+                {/* CONNECT WALLET SETTINGS */}
                 <div className="flex items-center">
                   <Button className="bg-blue-500 text-white px-8 py-2 rounded transition-all duration-300 hover:bg-blue-600">
                     Connect Wallet
